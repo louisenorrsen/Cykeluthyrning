@@ -1,0 +1,87 @@
+﻿@page "/laggtillcykel"
+@using Data;
+@inject BikeService bikeService
+
+<h3 class="text-center">Lägg till cykel</h3>
+<form class="d-flex flex-column gap-2" @onsubmit="AddBikeToDB">
+    <div class="d-flex justify-content-center gap-5">
+        <div class="form-group text-center mt-5 mb-3">
+            <label class="fw-bold" for="id">Id-nummer:</label>
+            <input type="text" id="id" @bind="id" />
+
+        </div>
+
+        <div class="form-group text-center">
+            <label class="fw-bold">Typ:</label>
+            @foreach (var type in Enum.GetValues(typeof(Enums.Type)))
+            {
+                var value = (Enums.Type)type;
+                <div>
+                    <input type="radio" id="@($"type_{value}")" name="type" value="@value" @onchange="TypeChangeHandler" />
+                    <label for="@($"type_{value}")">@value</label>
+                </div>
+            }
+        </div>
+
+        <div class="form-group text-center">
+            <label class="fw-bold">Storlek:</label>
+            @foreach (int size in Size)
+            {
+                int value = size;
+                <div>
+                    <input type="radio" id="@($"size_{size}")" name="size" value="@($"{size} tum")" @onchange="() => SizeChangeHandler(size)" />
+                    <label for="@($"size_{size}")">@($"{size} tum")</label>
+                </div>
+            }
+        </div>
+    </div>
+
+    <button class="btn @(bikeAdded ? "btn-success" : "btn-primary") m-auto" type="submit">Lägg till cykel</button>
+
+    @if (bikeAdded)
+    {
+        <div class="alert alert-success">Cykeln lades till i systemet!</div>
+    }
+</form>
+
+@code {
+    public static int[] Size = { 16, 20, 24, 26, 28 };
+    private int id;
+    private Enums.Type selectedType;
+    private int selectedSize;
+    private bool bikeAdded = false;
+
+    protected override void OnInitialized()
+    {
+        bikeAdded = false;
+    }
+
+    private void TypeChangeHandler(ChangeEventArgs e)
+    {
+        selectedType = (Enums.Type)Enum.Parse(typeof(Enums.Type), e.Value.ToString());
+    }
+
+    private void SizeChangeHandler(int value)
+    {
+        selectedSize = value;
+    }
+
+    private async Task ShowConfirmation()
+    {
+        bikeAdded = true;
+
+        await Task.Delay(TimeSpan.FromSeconds(2));
+
+        bikeAdded = false;
+        StateHasChanged();
+    }
+
+    private async void AddBikeToDB()
+    {
+        Bike data = new Bike(id, selectedSize, selectedType);
+
+        bikeService.AddBikes(data);
+        await ShowConfirmation();
+
+    }
+}

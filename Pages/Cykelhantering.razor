@@ -1,0 +1,30 @@
+﻿@page "/cykelhantering"
+@using Data;
+@inject BikeService bikeService;
+@inject IJSRuntime JSRuntime;
+
+<h3>Cykelhantering</h3>
+<div class="d-flex flex-wrap">
+    @foreach (var bike in bikes.OrderBy(b => b.Id))
+    {
+        <Cykeluthyrning.Components.BikeCard bike="bike" OnBikeDeleted="HandleBikeDeleted"></Cykeluthyrning.Components.BikeCard>
+    }
+
+</div>
+
+
+@code {
+    private List<Bike> bikes;
+
+    protected override void OnInitialized()
+    {
+        bikes = bikeService.GetBikes();
+    }
+
+    private void HandleBikeDeleted(Bike deletedBike)
+    {
+        bikes.Remove(deletedBike);
+        StateHasChanged();
+    }
+
+}

@@ -1,0 +1,115 @@
+﻿@page "/bikecard"
+@using Data;
+@inject BikeService bikeService;
+
+<div class="card text-center d-flex" style="width: 18rem">
+    <img class="card-img-top m-auto mt-4" style="width: 16rem; height:8rem; object-fit:scale-down" src="@($"Assets/{bike.Type}.png")" alt="@($"{bike.Type}_cykel")">
+    <div class="card-body d-flex align-items-end justify-content-center">
+        <div class="d-flex flex-column">
+            <h5 class="card-title">Cyckelnummer: @bike.Id</h5>
+            <div class="card-text">
+
+                Typ: @bike.Type<br />
+                Storlek: @bike.Size tum
+
+                <div class="input-group flex-nowrap m-auto">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="status">Status:</label>
+                    </div>
+
+                    <select class="custom-select col-4 p-1" id="status" value="@bike.Status" @onchange="StatusChangeHandler">
+                        @foreach (var status in Enum.GetValues(typeof(Enums.Status)))
+                        {
+                            <option value="@status">@status</option>
+                        }
+                    </select>
+
+                    <div class="input-group-append">
+
+                        <button class="btn @(isSuccess ? "btn-success" : "btn-outline-secondary")" type="button" @onclick="() => ChangeStatus(bike)">Uppdatera</button>
+                    
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert-container">
+                @if (isSuccess)
+                {
+                    <div class="alert alert-success text-small p-0 mb-0" role="alert">
+                        Uppdateringen lyckades!
+                    </div>
+                }
+            </div>
+
+            <div>
+                <button class="btn btn-outline-primary me-3" type="button" @onclick="() => ShowInfo(bike)">Info</button>
+                <button class="btn btn-danger" type="button" @onclick="() => HandleDeleteClick(bike)">Skrota cykel</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal modal-backdrop" tabindex="-1" style="@(isInfoVisible ? "display: block;" : "display: none;")">
+    <div class="modal-dialog-centered w-50 m-auto">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cykelinformation</h5>
+                <button type="button" class="btn-close" aria-label="Close" @onclick="HideInfo"></button>
+            </div>
+            <div class="modal-body">
+                <p>Senast uthyrd: @(bike.LastRented == null ? "Okänt" : bike.LastRented)</p>
+                <p>Uthyrd till: @(bike.LastCustomerName ?? "Okänt")</p>
+                <p>Telefon: @(bike.LastCustomerPhone ?? "Okänt")</p>
+                <p>Kundnummer: @(bike.LastCustomerNumber ?? "Okänt")</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="HideInfo">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public Bike bike { get; set; }
+    [Parameter]
+    public EventCallback<Bike> OnBikeDeleted { get; set; }
+    private Enums.Status status;
+
+    private bool isInfoVisible = false;
+    private bool isSuccess = false;
+
+    private void StatusChangeHandler(ChangeEventArgs e)
+    {
+        status = (Enums.Status)Enum.Parse(typeof(Enums.Status), e.Value.ToString());
+    }
+    private async void ChangeStatus(Bike bike)
+    {
+        bikeService.ChangeBikeStatus(bike, status);
+        isSuccess = true;
+
+        await Task.Delay(TimeSpan.FromSeconds(3));
+
+        isSuccess = false;
+        StateHasChanged();
+    }
+
+    private async Task HandleDeleteClick(Bike bike)
+    {
+        bikeService.DeleteBike(bike);
+        await OnBikeDeleted.InvokeAsync(bike);
+    }
+
+    private void ShowInfo(Bike bike)
+    {
+        isInfoVisible = true;
+    }
+
+    private void HideInfo()
+    {
+        isInfoVisible = false;
+    }
+}
