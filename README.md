@@ -1,6 +1,6 @@
 # Cykeluthyrningsapp
 ## Demovideo
-[<img src="https://img.youtube.com/vi/5RyXl_4cwUI/hqdefault.jpg"/>](https://www.youtube.com/5RyXl_4cwUI)
+[<img src="https://img.youtube.com/vi/5RyXl_4cwUI/hqdefault.jpg"/>](https://www.youtube.com/watch?v=5RyXl_4cwUI)
 
 ## Beskrivning
 Cykeluthyrningsappen är ett projekt som syftar till att förenkla hanteringen av cykeluthyrning för ett fiktivt företag. Projektet har utvecklats med syftet att lära sig Blazor och experimentera med Bootstrap.
