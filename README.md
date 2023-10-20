@@ -10,7 +10,7 @@ Projektet använder följande teknologier och verktyg:
 
 - C# och .NET Blazor
 - Bootstrap för användargränssnittet
-- 
+  
 ## Installation
 Följ dessa steg för att klona och starta projektet:
 
